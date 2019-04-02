@@ -1,0 +1,357 @@
+1.在测试图像上产生高斯噪声lena图-需能指定均值和方差；并用多种滤波器恢复图像，分析各自优缺点；
+clear all
+close all
+clc
+f=imread('lena6.bmp');
+f1=imnoise(f,'gaussian',0,0.01);
+f2=imnoise(f,'gaussian',0,0.03);
+f3=imnoise(f,'gaussian',0.1,0.01);
+f4=imnoise(f,'gaussian',0.1,0.03);
+f5=imnoise(f,'gaussian',0.2,0.03);
+f6=imnoise(f,'gaussian',0.2,0.04);
+figure(1)
+subplot(3,2,1)
+imshow(f)
+title('original image of lena');
+subplot(3,2,2)
+imshow(f1)
+title('add gaussian noise(u=0,s=0.01)');
+subplot(3,2,3)
+imshow(f2)
+title('add gaussian noise(u=0,s=0.03)');
+subplot(3,2,4)
+imshow(f3)
+title('add gaussian noise(u=0.1,s=0.01)');
+subplot(3,2,5)
+imshow(f4)
+title('add gaussian noise(u=0.1,s=0.03)');
+subplot(3,2,6)
+imshow(f5)
+title('add gaussian noise(u=0.2,s=0.03)');
+%中值滤波--------------------------------------
+f11=zhongzhifilter(f1);
+f21=zhongzhifilter(f2);
+f31=zhongzhifilter(f3);
+f41=zhongzhifilter(f4);
+f51=zhongzhifilter(f5);
+f61=zhongzhifilter(f6);
+figure(2)
+subplot(2,2,1)
+imshow(f1)
+title('gaussian noise(u=0,s=0.01)');
+subplot(2,2,2)
+imshow(f11);
+title('中值滤波后图像');
+subplot(2,2,3)
+imshow(f2)
+title('gaussian noise(u=0,s=0.03)');
+subplot(2,2,4)
+imshow(f21);
+title('中值滤波后图像');
+figure(3)
+subplot(2,2,1)
+imshow(f3)
+title('gaussian noise(u=0.1,s=0.01)');
+subplot(2,2,2)
+imshow(f31);
+title('中值滤波后图像');
+subplot(2,2,3)
+imshow(f4)
+title('gaussian noise(u=0.1,s=0.03)');
+subplot(2,2,4)
+imshow(f41);
+title('中值滤波后图像');
+figure(4)
+subplot(2,2,1)
+imshow(f5)
+title('gaussian noise(u=0.2,s=0.03)');
+subplot(2,2,2)
+imshow(f51);
+title('中值滤波后图像');
+subplot(2,2,3)
+imshow(f6)
+title('gaussian noise(u=0.2,s=0.04)');
+subplot(2,2,4)
+imshow(f61);
+title('中值滤波后图像');
+%算术均值滤波--------------------------------------------------
+f12=suanshujunzhifilter(f1);
+f22=suanshujunzhifilter(f2);
+f32=suanshujunzhifilter(f3);
+f42=suanshujunzhifilter(f4);
+f52=suanshujunzhifilter(f5);
+f62=suanshujunzhifilter(f6);
+figure(5)
+subplot(2,2,1)
+imshow(f1)
+title('gaussian noise(u=0,s=0.01)');
+subplot(2,2,2)
+imshow(f12);
+title('算术均值滤波后图像');
+subplot(2,2,3)
+imshow(f2)
+title('gaussian noise(u=0,s=0.03)');
+subplot(2,2,4)
+imshow(f22);
+title('算术均值滤波后图像');
+figure(6)
+subplot(2,2,1)
+imshow(f3)
+title('gaussian noise(u=0.1,s=0.01)');
+subplot(2,2,2)
+imshow(f32);
+title('算术均值滤波后图像');
+subplot(2,2,3)
+imshow(f4)
+title('gaussian noise(u=0.1,s=0.03)');
+subplot(2,2,4)
+imshow(f42);
+title('算术均值滤波后图像');
+figure(7)
+subplot(2,2,1)
+imshow(f5)
+title('gaussian noise(u=0.2,s=0.03)');
+subplot(2,2,2)
+imshow(f52);
+title('算术均值滤波后图像');
+subplot(2,2,3)
+imshow(f6)
+title('gaussian noise(u=0.2,s=0.04)');
+subplot(2,2,4)
+imshow(f62);
+title('算术均值滤波后图像');
+
+%--------------------------中值滤波器----------------------------------
+function g=zhongzhifilter(f)
+f1=f;
+n=5;
+[M,N]=size(f1);
+f11=double(f1);
+f12=f11;
+for j=1:M-n+1
+    for k=1:N-n+1
+        c=f11(j:j+(n-1),k:k+(n-1));
+        mm=median(c(:));
+        f12(j+(n-1)/2,k+(n-1)/2)=mm;
+    end
+end
+g=uint8(f12);
+
+%------------------------------------算术均值滤波器--------------------------------------
+function g=suanshujunzhifilter(f)
+f1=f;
+n=5;
+a=1/n^2*ones(n);
+f2=conv2(f1,a,'same');
+g=uint8(f2);
+
+2.在测试图像lena图加入椒盐噪声（椒和盐噪声密度均是0.1）；用学过的滤波器恢复图像；在使用反谐波分析Q大于0和小于0的作用；
+
+clear all
+close all
+clc
+f=imread('lena6.bmp');
+f1=imnoise(f,'salt & pepper',0.1);
+%-------------------------算术均值滤波-----------------------------------------
+f2=suanshujunzhifilter(f1);
+f3=medfilt2(f1);
+f4=nixiebo(f1,-1);
+f5=nixiebo(f1,0);
+f6=nixiebo(f1,1);
+f7=nixiebo(f1,0.5);
+figure(1)
+subplot(2,2,1)
+imshow(f);
+title('lena 源图像');
+subplot(2,2,2)
+imshow(f1);
+title('加入椒盐噪声0.1');
+subplot(2,2,3)
+imshow(f2);
+title('算术均值滤波');
+subplot(2,2,4)
+imshow(f3);
+title('中值滤波');
+
+figure(2)
+subplot(2,2,1)
+imshow(f4);
+title('逆谐波均值滤波Q=-1');
+subplot(2,2,2)
+imshow(f5);
+title('逆谐波均值滤波Q=0');
+subplot(2,2,3)
+imshow(f6);
+title('逆谐波均值滤波Q=1');
+subplot(2,2,4)
+imshow(f7);
+title('逆谐波均值滤波Q=0.5');
+
+
+
+3.推导维纳滤波器并实现下边要求；
+(a) 实现模糊滤波器如方程Eq. (5.6-11).
+(b) 模糊lena图像：45度方向，T=1；
+(c) 再模糊的lena图像中增加高斯噪声，均值= 0 ，方差=10 pixels 以产生模糊图像；
+(d)分别利用方程 Eq. (5.8-6)和(5.9-4)，恢复图像；并分析算法的优缺点.
+
+%----------------模糊滤波器------------------------------------
+clear all
+close all
+clc
+f=imread('lena6.bmp');
+fp=double(f);
+F=fft2(fp);
+F=fftshift(F);
+[m,n]=size(F);
+H=yundong(f,1,0.1,0.1);
+for u=1:m
+    for v=1:n
+        G(u,v)=H(u,v)*F(u,v);
+    end
+end
+Gp=ifftshift(G);
+gp=ifft2(Gp);
+g=uint8(real(256*gp/max(gp(:))));
+
+figure(1)
+subplot(2,2,1)
+imshow(f);
+title('lena源图像');
+subplot(2,2,2)
+imshow(g);
+title('运动模糊后图像（45度，T=1）');
+subplot(2,2,3)
+imshow(abs(255*F/max(F(:))));
+title('运动模糊滤波后图像频谱');
+subplot(2,2,4)
+imshow(abs(255*H/max(H(:))));
+title('运动模糊滤波器频谱');
+%-------------------------------------------
+%添加gauss噪声
+g1=imnoise(g,'gaussian',0,0.01);
+subplot(1,2,1)
+imshow(g);
+title('运动模糊图像');
+subplot(1,2,2)
+imshow(g1);
+title('运动模糊图像（添加gauss噪声）');
+%-----------------------------------------------
+%维纳滤波
+w=double(g1);
+W=fft2(w);
+W=fftshift(W);
+[M,N]=size(W);
+K1=0.01;
+for u=1:M
+  for v=1:N
+       D1(u,v)= 1/H(u,v)*(abs(H(u,v)))^2/((abs(H(u,v)))^2+K1);
+       P1(u,v)=D1(u,v)*W(u,v);
+  end
+end
+  Pg1=ifftshift(P1);
+  p1=ifft2(Pg1);
+  p1=uint8(real(256*p1/max(p1(:))));
+  
+K2=0.09;
+for u=1:M
+  for v=1:N
+       D2(u,v)= 1/H(u,v)*(abs(H(u,v)))^2/((abs(H(u,v)))^2+K2);
+       P2(u,v)=D2(u,v)*W(u,v);
+  end
+end
+  Pg2=ifftshift(P2);
+  p2=ifft2(Pg2);
+  p2=uint8(real(256*p2/max(p2(:))));
+  
+K3=0.2;
+for u=1:M
+  for v=1:N
+       D3(u,v)= 1/H(u,v)*(abs(H(u,v)))^2/((abs(H(u,v)))^2+K3);
+       P3(u,v)=D3(u,v)*W(u,v);
+  end
+end
+  Pg3=ifftshift(P3);
+  p3=ifft2(Pg3);
+  p3=uint8(real(256*p3/max(p3(:))));
+
+figure(2)
+subplot(2,2,1)
+imshow(g1);
+title('运动模糊图像（添加gauss噪声）');
+subplot(2,2,2)
+imshow(p1);
+title('wiener滤波（K=0.02)');
+subplot(2,2,3)
+imshow(p2);
+title('wiener滤波（K=0.09)');
+subplot(2,2,4)
+imshow(p3);
+title('wiener滤波（K=0.2)');
+
+%-------------------------------------
+%约束最小二乘方滤波
+P=[0 -1 0;-1 4 -1;0 -1 0];
+PD=psf2otf(P,[M,N]);%求P的DFT，并扩展到MxN空间
+PD=fftshift(PD);
+HD=conj(H);%求H的复共轭
+gama1=0.00000005;
+for u=1:M
+    for v=1:N
+        FD1(u,v)=(HD(u,v)/(H(u,v)^2+gama1*PD(u,v)^2))*W(u,v);
+    end
+end
+FD1=ifftshift(FD1);
+fd1=ifft2(FD1);
+fd1=uint8(real(256*fd1/max(fd1(:))));
+
+gama2=0.0000005;
+for u=1:M
+    for v=1:N
+        FD2(u,v)=(HD(u,v)/(H(u,v)^2+gama2*PD(u,v)^2))*W(u,v);
+    end
+end
+FD2=ifftshift(FD2);
+fd2=ifft2(FD2);
+fd2=uint8(real(256*fd2/max(fd2(:))));
+
+gama3=0.00000005;
+for u=1:M
+    for v=1:N
+        FD3(u,v)=(HD(u,v)/(H(u,v)^2+gama3*PD(u,v)^2))*W(u,v);
+    end
+end
+FD3=ifftshift(FD3);
+fd3=ifft2(FD3);
+fd3=uint8(real(256*fd3/max(fd3(:))));
+
+figure(3)
+subplot(2,2,1)
+imshow(g1);
+title('运动模糊图像（添加gauss噪声）');
+subplot(2,2,2)
+imshow(fd1);
+title('约束最小二乘方滤波（gama=0.00000005)');
+subplot(2,2,3)
+imshow(fd2);
+title('约束最小二乘方滤波（gama=0.0000005)');
+subplot(2,2,4)
+imshow(fd3);
+title('约束最小二乘方滤波（gama=0.000005)');
+
+%---------------------------运动模糊滤波-----------------------
+function H=yundong(g,a,x,y)
+f=g;
+T=a;
+a=x;
+b=y;
+[m,n]=size(g);
+f1=double(f);
+for u=1:m
+    for v=1:n
+        H(u,v)=(T/(pi*(a*u+b*v)))*sin(pi*(a*u+b*v))*exp(-sqrt(-1)*pi*(a*u+b*v));
+    end
+end
+
+
+
